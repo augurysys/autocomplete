@@ -67,7 +67,6 @@ func (a *Autocomplete) Search(index, query string) ([][]byte, error) {
 	}
 
 	if _, err := conn.Do("ZINTERSTORE", args...); err != nil {
-
 		return [][]byte{}, err
 	}
 
