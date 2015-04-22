@@ -7,7 +7,7 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-func ExampleIndex() {
+func ExampleAutocomplete_Index() {
 	pool := &redis.Pool{
 		MaxIdle:     3,
 		MaxActive:   20,

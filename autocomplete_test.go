@@ -6,7 +6,7 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-func ExampleAutocomplete_New() {
+func ExampleNew() {
 	pool := &redis.Pool{
 		MaxIdle:     3,
 		MaxActive:   20,
