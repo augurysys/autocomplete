@@ -1,4 +1,4 @@
-// Package autocomplete provides a library for building autocomplete services
+// Package autocomplete provides a library for building auto complete services
 // with a Redis backend.
 //
 // it uses http://github.com/garyburd/redigo/redis as it's Redis driver.
@@ -11,7 +11,7 @@
 //
 // 	http://engineering.getglue.com/post/36667374830/autocomplete-search-with-redis
 //
-// for implementing the autocomplete functionality and the implementation
+// for implementing the auto-complete functionality and the implementation
 // is using transactions and LUA scripts for optimizations.
 package autocomplete
 
