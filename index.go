@@ -73,7 +73,11 @@ func (a *Autocomplete) RemoveDocument(index string, d Document) error {
 	return nil
 }
 
-// UpdateDocument updates a document in the autocomplete search index
+// UpdateDocument updates a document in the autocomplete search index,
+// only the document's data can be updated because the key is generated from
+// a combination of the document id and name.
+//
+// if one of those is changed, the document should be removed and re-indexed
 func (a *Autocomplete) UpdateDocument(index string, d Document) error {
 	conn := a.pool.Get()
 	defer conn.Close()
