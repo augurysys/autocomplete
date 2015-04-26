@@ -76,7 +76,7 @@ func (a *Autocomplete) Search(index, query string) ([][]byte, error) {
 			local index=KEYS[2]
 			local a=redis.call("ZRANGE", zkey, 0, -1)
 			for i=1,#a do r[i]=redis.call("HGET", index, a[i]) end 
-			redis.call("DEL", zkey)
+			redis.call("EXPIRE", zkey, 60)
 			return r
 		`)
 
