@@ -31,7 +31,7 @@ func (a *Autocomplete) Search(index, query string, sort int) ([][]byte, error) {
 			local r={}
 			local zkey=KEYS[1]
 			local index=KEYS[2]
-			local sort=KEYS[3]
+			local sort=tonumber(KEYS[3])
 			
 			local a={}
 			if sort == 0 then
@@ -43,7 +43,7 @@ func (a *Autocomplete) Search(index, query string, sort int) ([][]byte, error) {
 			elseif sort == 3 then
 				a=redis.call("ZREVRANGEBYSCORE", zkey, "+inf", "-inf")
 			else
-				error("invalid sort value")
+				return redis.error_reply("invalid sort value")
 			end
 
 			for i=1,#a do r[i]=redis.call("HGET", index, a[i]) end return r
@@ -98,7 +98,7 @@ func (a *Autocomplete) Search(index, query string, sort int) ([][]byte, error) {
 			local r={}
 			local zkey=KEYS[1]
 			local index=KEYS[2]
-			local sort=KEYS[3]
+			local sort=tonumber(KEYS[3])
 			
 			local a={}
 			if sort == 0 then
@@ -110,7 +110,7 @@ func (a *Autocomplete) Search(index, query string, sort int) ([][]byte, error) {
 			elseif sort == 3 then
 				a=redis.call("ZREVRANGEBYSCORE", zkey, "+inf", "-inf")
 			else
-				error("invalid sort value")
+				return redis.error_reply("invalid sort value")
 			end
 			
 			for i=1,#a do r[i]=redis.call("HGET", index, a[i]) end 
