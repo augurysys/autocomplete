@@ -6,28 +6,28 @@ import (
 )
 
 type doc struct {
-	id   string
-	term string
-	data string
+	DocID   string `json:"id"`
+	Name    string `json:"name"`
+	DocData string `json:"data,omitempty"`
 }
 
 func (d doc) ID() string {
-	return d.id
+	return d.DocID
 }
 
 func (d doc) Term() string {
-	return d.term
+	return d.Name
 }
 
 func (d doc) Data() interface{} {
-	return d.data
+	return d.DocData
 }
 
 func TestKey(t *testing.T) {
 	d := doc{
-		id:   "123",
-		term: "Test SEARCH term!",
-		data: "dbID123",
+		DocID:   "123",
+		Name:    "Test SEARCH term!",
+		DocData: "dbID123",
 	}
 
 	if key(d) != "test_search_term!_123" {
@@ -37,9 +37,9 @@ func TestKey(t *testing.T) {
 
 func TestPrefixes(t *testing.T) {
 	d := doc{
-		id:   "123",
-		term: "Test SEARCH term!",
-		data: "dbID123",
+		DocID:   "123",
+		Name:    "Test SEARCH term!",
+		DocData: "dbID123",
 	}
 
 	if !reflect.DeepEqual(prefixes(d),

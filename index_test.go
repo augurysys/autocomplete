@@ -33,16 +33,16 @@ func ExampleAutocomplete_Index() {
 
 	docs := []doc{
 		{
-			id:   "1",
-			term: "Mercedes S500",
+			DocID: "1",
+			Name:  "Mercedes S500",
 		},
 		{
-			id:   "2",
-			term: "Mercedes E250",
+			DocID: "2",
+			Name:  "Mercedes E250",
 		},
 		{
-			id:   "3",
-			term: "Toyota Prius",
+			DocID: "3",
+			Name:  "Toyota Prius",
 		},
 	}
 

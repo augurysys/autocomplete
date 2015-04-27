@@ -1,6 +1,7 @@
 package autocomplete
 
 import (
+	"testing"
 	"time"
 
 	"github.com/garyburd/redigo/redis"
@@ -29,4 +30,15 @@ func ExampleNew() {
 	defer pool.Close()
 
 	New(pool, "ac")
+}
+
+func TestNew(t *testing.T) {
+	p := &redis.Pool{}
+	prefix := "test_prefix"
+
+	s := New(p, prefix)
+
+	if s.pool != p || s.prefix != prefix {
+		t.Fail()
+	}
 }

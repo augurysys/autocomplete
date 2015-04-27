@@ -10,10 +10,10 @@ import (
 
 // Sort constants
 const (
-	SortLexicographical   = 0
-	SortRevLexicoraphical = 1
-	SortScore             = 2
-	SortRevScore          = 3
+	SortLexicographical    = 0
+	SortRevLexicographical = 1
+	SortScore              = 2
+	SortRevScore           = 3
 )
 
 // Search invokes an autocomplete search query

@@ -2,3 +2,9 @@ language: go
 
 go:
   - 1.4
+
+services:
+  - redis-server
+
+script:
+  go get github.com/augurysys/autocomplete; go test -v -p 1 -tags integration github.com/augurysys/autocomplete
