@@ -26,32 +26,34 @@ func (a *Autocomplete) Search(index, query string, sort int) ([][]byte, error) {
 		return [][]byte{}, nil
 	}
 
-	if len(terms) == 1 {
-		script := redis.NewScript(3, `
-			local r={}
-			local zkey=KEYS[1]
-			local index=KEYS[2]
-			local sort=tonumber(KEYS[3])
-			
-			local a={}
-			if sort == 0 then
-				a=redis.call("ZRANGE", zkey, 0, -1)
-				local sort_func=function(a, b) return a < b end
-				table.sort(a, sort_func)
-			elseif sort == 1 then
-				a=redis.call("ZREVRANGE", zkey, 0, -1)
-				local sort_func=function(a, b) return a > b end
-				table.sort(a, sort_func)
-			elseif sort == 2 then
-				a=redis.call("ZRANGEBYSCORE", zkey, "-inf", "+inf")
-			elseif sort == 3 then
-				a=redis.call("ZREVRANGEBYSCORE", zkey, "+inf", "-inf")
-			else
-				return redis.error_reply("invalid sort value")
-			end
+	src := `
+		local r={}
+		local zkey=KEYS[1]
+		local index=KEYS[2]
+		local sort=tonumber(KEYS[3])
+		
+		local a={}
+		if sort == 0 then
+			a=redis.call("ZRANGE", zkey, 0, -1)
+			local sort_func=function(a, b) return a < b end
+			table.sort(a, sort_func)
+		elseif sort == 1 then
+			a=redis.call("ZREVRANGE", zkey, 0, -1)
+			local sort_func=function(a, b) return a > b end
+			table.sort(a, sort_func)
+		elseif sort == 2 then
+			a=redis.call("ZRANGEBYSCORE", zkey, "-inf", "+inf")
+		elseif sort == 3 then
+			a=redis.call("ZREVRANGEBYSCORE", zkey, "+inf", "-inf")
+		else
+			return redis.error_reply("invalid sort value")
+		end
+		
+		for i=1,#a do r[i]=redis.call("HGET", index, a[i]) end`
 
-			for i=1,#a do r[i]=redis.call("HGET", index, a[i]) end return r
-		`)
+	if len(terms) == 1 {
+		src += "\n" + src
+		script := redis.NewScript(3, src)
 
 		values, err := redis.Values(
 			script.Do(conn, a.prefix+":"+index+":"+terms[0],
@@ -75,6 +77,10 @@ func (a *Autocomplete) Search(index, query string, sort int) ([][]byte, error) {
 	}
 
 	// len(terms) > 1
+	src += "\n" + `
+		redis.call("EXPIRE", zkey, 60)
+		return r`
+
 	buf := bytes.NewBufferString(a.prefix + ":" + index + ":")
 	for i, t := range terms {
 		buf.WriteString(t)
@@ -98,34 +104,7 @@ func (a *Autocomplete) Search(index, query string, sort int) ([][]byte, error) {
 		return [][]byte{}, err
 	}
 
-	script := redis.NewScript(3, `
-			local r={}
-			local zkey=KEYS[1]
-			local index=KEYS[2]
-			local sort=tonumber(KEYS[3])
-			
-			local a={}
-			if sort == 0 then
-				a=redis.call("ZRANGE", zkey, 0, -1)
-				local sort_func=function(a, b) return a < b end
-				table.sort(a, sort_func)
-			elseif sort == 1 then
-				a=redis.call("ZREVRANGE", zkey, 0, -1)
-				local sort_func=function(a, b) return a > b end
-				table.sort(a, sort_func)
-			elseif sort == 2 then
-				a=redis.call("ZRANGEBYSCORE", zkey, "-inf", "+inf")
-			elseif sort == 3 then
-				a=redis.call("ZREVRANGEBYSCORE", zkey, "+inf", "-inf")
-			else
-				return redis.error_reply("invalid sort value")
-			end
-			
-			for i=1,#a do r[i]=redis.call("HGET", index, a[i]) end 
-			redis.call("EXPIRE", zkey, 60)
-			return r
-		`)
-
+	script := redis.NewScript(3, src)
 	values, err := redis.Values(
 		script.Do(conn, buf.String(), a.prefix+":$"+index, sort))
 
