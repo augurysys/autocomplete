@@ -52,7 +52,7 @@ func (a *Autocomplete) Search(index, query string, sort int) ([][]byte, error) {
 		for i=1,#a do r[i]=redis.call("HGET", index, a[i]) end`
 
 	if len(terms) == 1 {
-		src += "\n" + src
+		src += "\n" + "return r"
 		script := redis.NewScript(3, src)
 
 		values, err := redis.Values(
