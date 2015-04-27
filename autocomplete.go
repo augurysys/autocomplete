@@ -11,8 +11,7 @@
 //
 // 	http://engineering.getglue.com/post/36667374830/autocomplete-search-with-redis
 //
-// for implementing the auto-complete functionality and the implementation
-// is using transactions and LUA scripts for optimizations.
+// the implementation is using transactions and LUA scripts for optimizations.
 package autocomplete
 
 import (
