@@ -35,9 +35,13 @@ func (a *Autocomplete) Search(index, query string, sort int) ([][]byte, error) {
 			
 			local a={}
 			if sort == 0 then
-				a=redis.call("ZRANGEBYLEX", zkey, "-", "+")
+				a=redis.call("ZRANGE", zkey, 0, -1)
+				local sort_func=function(a, b) return a < b end
+				table.sort(a, sort_func)
 			elseif sort == 1 then
-				a=redis.call("ZREVRANGEBYLEX", zkey, "+", "-")
+				a=redis.call("ZREVRANGE", zkey, 0, -1)
+				local sort_func=function(a, b) return a > b end
+				table.sort(a, sort_func)
 			elseif sort == 2 then
 				a=redis.call("ZRANGEBYSCORE", zkey, "-inf", "+inf")
 			elseif sort == 3 then
@@ -102,9 +106,13 @@ func (a *Autocomplete) Search(index, query string, sort int) ([][]byte, error) {
 			
 			local a={}
 			if sort == 0 then
-				a=redis.call("ZRANGEBYLEX", zkey, "-", "+")
+				a=redis.call("ZRANGE", zkey, 0, -1)
+				local sort_func=function(a, b) return a < b end
+				table.sort(a, sort_func)
 			elseif sort == 1 then
-				a=redis.call("ZREVRANGEBYLEX", zkey, "+", "-")
+				a=redis.call("ZREVRANGE", zkey, 0, -1)
+				local sort_func=function(a, b) return a > b end
+				table.sort(a, sort_func)
 			elseif sort == 2 then
 				a=redis.call("ZRANGEBYSCORE", zkey, "-inf", "+inf")
 			elseif sort == 3 then
