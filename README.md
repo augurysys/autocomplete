@@ -1,4 +1,4 @@
-Library for creating autocomplete services with Golang and Redis
+a Library for building auto-complete services with Golang and Redis
 
 [![GoDoc](https://godoc.org/github.com/augurysys/autocomplete?status.png)](https://godoc.org/github.com/augurysys/autocomplete)
 
