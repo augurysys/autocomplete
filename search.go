@@ -8,8 +8,16 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
+// Sort constants
+const (
+	SortLexicographical   = 0
+	SortRevLexicoraphical = 1
+	SortScore             = 2
+	SortRevScore          = 3
+)
+
 // Search invokes an autocomplete search query
-func (a *Autocomplete) Search(index, query string) ([][]byte, error) {
+func (a *Autocomplete) Search(index, query string, sort int) ([][]byte, error) {
 	conn := a.pool.Get()
 	defer conn.Close()
 
@@ -19,11 +27,25 @@ func (a *Autocomplete) Search(index, query string) ([][]byte, error) {
 	}
 
 	if len(terms) == 1 {
-		script := redis.NewScript(2, `
+		script := redis.NewScript(3, `
 			local r={}
 			local zkey=KEYS[1]
 			local index=KEYS[2]
-			local a=redis.call("ZRANGE", zkey, 0, -1)
+			local sort=KEYS[3]
+			
+			local a={}
+			if sort == 0 then
+				a=redis.call("ZRANGE", zkey, 0, -1)
+			elseif sort == 1 then
+				a=redis.call("ZREVRANGE", zkey, 0, -1)
+			elseif sort == 2 then
+				a=redis.call("ZRANGEBYSCORE", zkey, -inf, +inf)
+			elseif sort == 3 then
+				a=redis.call("ZREVRANGEBYSCORE", zkey, +inf, -inf)
+			else
+				error("invalid sort value")
+			end
+
 			for i=1,#a do r[i]=redis.call("HGET", index, a[i]) end return r
 		`)
 
@@ -66,15 +88,30 @@ func (a *Autocomplete) Search(index, query string) ([][]byte, error) {
 		args = append(args, k)
 	}
 
+	args = append(args, []interface{}{"AGGREGATE", "MAX"})
 	if _, err := conn.Do("ZINTERSTORE", args...); err != nil {
 		return [][]byte{}, err
 	}
 
-	script := redis.NewScript(2, `
+	script := redis.NewScript(3, `
 			local r={}
 			local zkey=KEYS[1]
 			local index=KEYS[2]
-			local a=redis.call("ZRANGE", zkey, 0, -1)
+			local sort=KEYS[3]
+			
+			local a={}
+			if sort == 0 then
+				a=redis.call("ZRANGE", zkey, 0, -1)
+			elseif sort == 1 then
+				a=redis.call("ZREVRANGE", zkey, 0, -1)
+			elseif sort == 2 then
+				a=redis.call("ZRANGEBYSCORE", zkey, -inf, +inf)
+			elseif sort == 3 then
+				a=redis.call("ZREVRANGEBYSCORE", zkey, +inf, -inf)
+			else
+				error("invalid sort value")
+			end
+			
 			for i=1,#a do r[i]=redis.call("HGET", index, a[i]) end 
 			redis.call("EXPIRE", zkey, 60)
 			return r

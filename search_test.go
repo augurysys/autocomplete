@@ -32,7 +32,7 @@ func ExampleAutocomplete_Search() {
 
 	a := New(pool, "ac")
 
-	results, err := a.Search("cars", "mer")
+	results, err := a.Search("cars", "mer", SortLexicographical)
 	if err != nil {
 		log.Fatal(err)
 	}

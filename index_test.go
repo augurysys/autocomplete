@@ -47,7 +47,7 @@ func ExampleAutocomplete_Index() {
 	}
 
 	for _, d := range docs {
-		if err := a.Index("cars", d); err != nil {
+		if err := a.Index("cars", d, 0); err != nil {
 			log.Fatal(err)
 		}
 	}
