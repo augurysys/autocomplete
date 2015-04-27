@@ -89,7 +89,7 @@ func (a *Autocomplete) Search(index, query string, sort int) ([][]byte, error) {
 		args = append(args, k)
 	}
 
-	args = append(args, []interface{}{"AGGREGATE", "MAX"})
+	args = append(args, []interface{}{"AGGREGATE", "MAX"}...)
 	if _, err := conn.Do("ZINTERSTORE", args...); err != nil {
 		return [][]byte{}, err
 	}
