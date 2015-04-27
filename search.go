@@ -50,7 +50,8 @@ func (a *Autocomplete) Search(index, query string, sort int) ([][]byte, error) {
 		`)
 
 		values, err := redis.Values(
-			script.Do(conn, a.prefix+":"+index+":"+terms[0], a.prefix+":$"+index))
+			script.Do(conn, a.prefix+":"+index+":"+terms[0],
+				a.prefix+":$"+index, sort))
 
 		if err != nil {
 			return [][]byte{}, err
@@ -118,7 +119,7 @@ func (a *Autocomplete) Search(index, query string, sort int) ([][]byte, error) {
 		`)
 
 	values, err := redis.Values(
-		script.Do(conn, buf.String(), a.prefix+":$"+index))
+		script.Do(conn, buf.String(), a.prefix+":$"+index, sort))
 
 	if err != nil {
 		return [][]byte{}, err
