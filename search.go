@@ -35,9 +35,9 @@ func (a *Autocomplete) Search(index, query string, sort int) ([][]byte, error) {
 			
 			local a={}
 			if sort == 0 then
-				a=redis.call("ZRANGE", zkey, 0, -1)
+				a=redis.call("ZRANGEBYLEX", zkey, "-", "+")
 			elseif sort == 1 then
-				a=redis.call("ZREVRANGE", zkey, 0, -1)
+				a=redis.call("ZREVRANGEBYLEX", zkey, "+", "-")
 			elseif sort == 2 then
 				a=redis.call("ZRANGEBYSCORE", zkey, "-inf", "+inf")
 			elseif sort == 3 then
@@ -102,9 +102,9 @@ func (a *Autocomplete) Search(index, query string, sort int) ([][]byte, error) {
 			
 			local a={}
 			if sort == 0 then
-				a=redis.call("ZRANGE", zkey, 0, -1)
+				a=redis.call("ZRANGEBYLEX", zkey, "-", "+")
 			elseif sort == 1 then
-				a=redis.call("ZREVRANGE", zkey, 0, -1)
+				a=redis.call("ZREVRANGEBYLEX", zkey, "+", "-")
 			elseif sort == 2 then
 				a=redis.call("ZRANGEBYSCORE", zkey, "-inf", "+inf")
 			elseif sort == 3 then
