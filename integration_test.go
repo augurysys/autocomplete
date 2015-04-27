@@ -81,7 +81,7 @@ func tearDown(t *testing.T) {
 
 func TestIndexAndSearch(t *testing.T) {
 	setUp(t)
-	//	defer tearDown(t)
+	defer tearDown(t)
 
 	d1 := doc{
 		DocID: "123",
