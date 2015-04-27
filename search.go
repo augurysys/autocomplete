@@ -39,9 +39,9 @@ func (a *Autocomplete) Search(index, query string, sort int) ([][]byte, error) {
 			elseif sort == 1 then
 				a=redis.call("ZREVRANGE", zkey, 0, -1)
 			elseif sort == 2 then
-				a=redis.call("ZRANGEBYSCORE", zkey, -inf, +inf)
+				a=redis.call("ZRANGEBYSCORE", zkey, "-inf", "+inf")
 			elseif sort == 3 then
-				a=redis.call("ZREVRANGEBYSCORE", zkey, +inf, -inf)
+				a=redis.call("ZREVRANGEBYSCORE", zkey, "+inf", "-inf")
 			else
 				error("invalid sort value")
 			end
@@ -106,9 +106,9 @@ func (a *Autocomplete) Search(index, query string, sort int) ([][]byte, error) {
 			elseif sort == 1 then
 				a=redis.call("ZREVRANGE", zkey, 0, -1)
 			elseif sort == 2 then
-				a=redis.call("ZRANGEBYSCORE", zkey, -inf, +inf)
+				a=redis.call("ZRANGEBYSCORE", zkey, "-inf", "+inf")
 			elseif sort == 3 then
-				a=redis.call("ZREVRANGEBYSCORE", zkey, +inf, -inf)
+				a=redis.call("ZREVRANGEBYSCORE", zkey, "+inf", "-inf")
 			else
 				error("invalid sort value")
 			end
