@@ -37,7 +37,7 @@ const (
 	// TermsIndexing index entire terms in a single ZSET and use ZRANGEBYLEX
 	// for querying.
 	//
-	// Redis dataset and queries complextity:
+	// Redis dataset and queries complexity:
 	// memory complexity - O(N) with N being the number of search terms.
 	//
 	// time complexity - O(log(N)+N) with N being the number of indexed terms.
@@ -54,13 +54,20 @@ type Autocomplete struct {
 	pool      *redis.Pool
 	prefix    string
 	indexType int
+
+	scripts map[string]*redis.Script
 }
 
 // New returns a pointer to a new Autocomplete service
 func New(pool *redis.Pool, prefix string, indexType int) *Autocomplete {
-	return &Autocomplete{
+	a := &Autocomplete{
 		pool:      pool,
 		prefix:    prefix,
 		indexType: indexType,
+		scripts:   make(map[string]*redis.Script),
 	}
+
+	a.initScripts()
+
+	return a
 }
