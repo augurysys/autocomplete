@@ -16,6 +16,7 @@ package autocomplete
 
 import (
 	"errors"
+
 	"github.com/garyburd/redigo/redis"
 )
 
