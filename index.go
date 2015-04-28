@@ -22,12 +22,12 @@ func (a *Autocomplete) Index(index string, d Document, score uint64) error {
 		return err
 	}
 
-	if err := conn.Send("MULTI"); err != nil {
-		return err
-	}
-
 	switch a.indexType {
 	case PrefixesIndexing:
+		if err := conn.Send("MULTI"); err != nil {
+			return err
+		}
+
 		for _, p := range prefixes(d) {
 			if err := conn.Send("ZADD", a.prefix+":"+index+":"+p,
 				score, docKey); err != nil {
@@ -37,8 +37,27 @@ func (a *Autocomplete) Index(index string, d Document, score uint64) error {
 		}
 
 	case TermsIndexing:
+		script, ok := a.scripts["isKeyExists"]
+		if !ok {
+			return fmt.Errorf("initialization error")
+		}
+
+		exists, err := redis.Bool(script.Do(conn, a.prefix+":$$"+index, docKey))
+		if err != nil {
+			return err
+		}
+
+		if exists {
+			return fmt.Errorf("%+v is already indexed in %s",
+				d, index)
+		}
+
 		scoreStr, err := scoreString(score)
 		if err != nil {
+			return err
+		}
+
+		if err := conn.Send("MULTI"); err != nil {
 			return err
 		}
 
