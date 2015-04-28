@@ -29,7 +29,7 @@ func ExampleAutocomplete_Index() {
 
 	defer pool.Close()
 
-	a := New(pool, "ac")
+	a := New(pool, "ac", TermsIndexing)
 
 	docs := []doc{
 		{

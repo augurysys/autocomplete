@@ -40,7 +40,7 @@ func flushall(t *testing.T) {
 	}
 }
 
-func setUp(t *testing.T) {
+func setUp(t *testing.T, indexType int) {
 	pool = &redis.Pool{
 		MaxIdle:     3,
 		MaxActive:   20,
@@ -69,7 +69,7 @@ func setUp(t *testing.T) {
 
 	flushall(t)
 
-	autocomplete = New(pool, prefix)
+	autocomplete = New(pool, prefix, indexType)
 }
 
 func tearDown(t *testing.T) {
@@ -79,8 +79,8 @@ func tearDown(t *testing.T) {
 	autocomplete = nil
 }
 
-func TestIndexAndSearch(t *testing.T) {
-	setUp(t)
+func TestIndexAndSearchPrefixesIndexing(t *testing.T) {
+	setUp(t, PrefixesIndexing)
 	defer tearDown(t)
 
 	d1 := doc{
@@ -238,6 +238,150 @@ func TestIndexAndSearch(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(d, d1) {
+		t.Fail()
+	}
+}
+
+func TestIndexAndSearchTermsIndexing(t *testing.T) {
+	setUp(t, TermsIndexing)
+	//	defer tearDown(t)
+
+	d1 := doc{
+		DocID: "123",
+		Name:  "Test SEARCH term!",
+	}
+
+	d2 := doc{
+		DocID: "345",
+		Name:  "Test another SEARCH term 2",
+	}
+
+	if err := autocomplete.Index("test_index", d1, 100); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := autocomplete.Index("test_index", d2, 200); err != nil {
+		t.Fatal(err)
+	}
+
+	results, err := autocomplete.Search("test_index", "x", SortLexicographical)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(results) != 0 {
+		t.Fail()
+	}
+
+	// search with lexicographical order
+	results, err = autocomplete.Search("test_index", "test", SortLexicographical)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(results) != 2 {
+		t.Fail()
+	}
+
+	docs := []doc{}
+	for _, r := range results {
+		var d doc
+		if err := json.Unmarshal(r, &d); err != nil {
+			t.Fatal(err)
+		}
+
+		docs = append(docs, d)
+	}
+
+	if !reflect.DeepEqual(docs[0], d2) {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(docs[1], d1) {
+		t.Fail()
+	}
+
+	// search with reverse lexicographical order
+	results, err = autocomplete.Search("test_index", "test", SortRevLexicographical)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(results) != 2 {
+		t.Fail()
+	}
+
+	docs = []doc{}
+	for _, r := range results {
+		var d doc
+		if err := json.Unmarshal(r, &d); err != nil {
+			t.Fatal(err)
+		}
+
+		docs = append(docs, d)
+	}
+
+	if !reflect.DeepEqual(docs[0], d1) {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(docs[1], d2) {
+		t.Fail()
+	}
+
+	// search with score order
+	results, err = autocomplete.Search("test_index", "test", SortScore)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(results) != 2 {
+		t.Fail()
+	}
+
+	docs = []doc{}
+	for _, r := range results {
+		var d doc
+		if err := json.Unmarshal(r, &d); err != nil {
+			t.Fatal(err)
+		}
+
+		docs = append(docs, d)
+	}
+
+	if !reflect.DeepEqual(docs[0], d1) {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(docs[1], d2) {
+		t.Fail()
+	}
+
+	// search with reverse score order
+	results, err = autocomplete.Search("test_index", "test", SortRevScore)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(results) != 2 {
+		t.Fail()
+	}
+
+	docs = []doc{}
+	for _, r := range results {
+		var d doc
+		if err := json.Unmarshal(r, &d); err != nil {
+			t.Fatal(err)
+		}
+
+		docs = append(docs, d)
+	}
+
+	if !reflect.DeepEqual(docs[0], d2) {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(docs[1], d1) {
 		t.Fail()
 	}
 }

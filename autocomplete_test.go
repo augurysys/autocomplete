@@ -29,16 +29,16 @@ func ExampleNew() {
 
 	defer pool.Close()
 
-	New(pool, "ac")
+	New(pool, "ac", PrefixesIndexing)
 }
 
 func TestNew(t *testing.T) {
 	p := &redis.Pool{}
 	prefix := "test_prefix"
 
-	s := New(p, prefix)
+	s := New(p, prefix, PrefixesIndexing)
 
-	if s.pool != p || s.prefix != prefix {
+	if s.pool != p || s.prefix != prefix || s.indexType != PrefixesIndexing {
 		t.Fail()
 	}
 }

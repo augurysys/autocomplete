@@ -30,7 +30,7 @@ func ExampleAutocomplete_Search() {
 
 	defer pool.Close()
 
-	a := New(pool, "ac")
+	a := New(pool, "ac", TermsIndexing)
 
 	results, err := a.Search("cars", "mer", SortLexicographical)
 	if err != nil {
