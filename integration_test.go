@@ -7,7 +7,6 @@ import (
 	"flag"
 	"reflect"
 	"strconv"
-	"sync"
 	"testing"
 	"time"
 
@@ -442,25 +441,18 @@ func BenchmarkSearchPrefixesIndexingLexicographicalSort(b *testing.B) {
 	setUp(b, PrefixesIndexing)
 	defer tearDown(b)
 
-	var wg sync.WaitGroup
 	for i := 0; i < 100000; i++ {
-		wg.Add(1)
 		s := strconv.Itoa(i)
 
-		go func(s string) {
-			defer wg.Done()
-			d := doc{
-				DocID: s,
-				Name:  s + " " + "test_string" + s,
-			}
+		d := doc{
+			DocID: s,
+			Name:  s + " " + "test_string" + s,
+		}
 
-			if err := autocomplete.Index("test_index", d, 100); err != nil {
-				b.Fatal(err)
-			}
-		}(s)
+		if err := autocomplete.Index("test_index", d, 100); err != nil {
+			b.Fatal(err)
+		}
 	}
-
-	wg.Wait()
 
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()
@@ -482,25 +474,18 @@ func BenchmarkSearchPrefixesIndexingScoreSort(b *testing.B) {
 	setUp(b, PrefixesIndexing)
 	defer tearDown(b)
 
-	var wg sync.WaitGroup
 	for i := 0; i < 100000; i++ {
-		wg.Add(1)
 		s := strconv.Itoa(i)
 
-		go func(s string) {
-			defer wg.Done()
-			d := doc{
-				DocID: s,
-				Name:  s + " " + "test_string" + s,
-			}
+		d := doc{
+			DocID: s,
+			Name:  s + " " + "test_string" + s,
+		}
 
-			if err := autocomplete.Index("test_index", d, 100); err != nil {
-				b.Fatal(err)
-			}
-		}(s)
+		if err := autocomplete.Index("test_index", d, 100); err != nil {
+			b.Fatal(err)
+		}
 	}
-
-	wg.Wait()
 
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()
@@ -522,25 +507,17 @@ func BenchmarkSearchTermsIndexingLexicographicalSort(b *testing.B) {
 	setUp(b, TermsIndexing)
 	defer tearDown(b)
 
-	var wg sync.WaitGroup
 	for i := 0; i < 100000; i++ {
-		wg.Add(1)
 		s := strconv.Itoa(i)
+		d := doc{
+			DocID: s,
+			Name:  s + " " + "test_string" + s,
+		}
 
-		go func(s string) {
-			defer wg.Done()
-			d := doc{
-				DocID: s,
-				Name:  s + " " + "test_string" + s,
-			}
-
-			if err := autocomplete.Index("test_index", d, 100); err != nil {
-				b.Fatal(err)
-			}
-		}(s)
+		if err := autocomplete.Index("test_index", d, 100); err != nil {
+			b.Fatal(err)
+		}
 	}
-
-	wg.Wait()
 
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()
@@ -562,25 +539,18 @@ func BenchmarkSearchTermsIndexingScoreSort(b *testing.B) {
 	setUp(b, TermsIndexing)
 	defer tearDown(b)
 
-	var wg sync.WaitGroup
 	for i := 0; i < 100000; i++ {
-		wg.Add(1)
 		s := strconv.Itoa(i)
 
-		go func(s string) {
-			defer wg.Done()
-			d := doc{
-				DocID: s,
-				Name:  s + " " + "test_string" + s,
-			}
+		d := doc{
+			DocID: s,
+			Name:  s + " " + "test_string" + s,
+		}
 
-			if err := autocomplete.Index("test_index", d, 100); err != nil {
-				b.Fatal(err)
-			}
-		}(s)
+		if err := autocomplete.Index("test_index", d, 100); err != nil {
+			b.Fatal(err)
+		}
 	}
-
-	wg.Wait()
 
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()
