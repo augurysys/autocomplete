@@ -37,12 +37,7 @@ func (a *Autocomplete) Index(index string, d Document, score uint64) error {
 		}
 
 	case TermsIndexing:
-		script, ok := a.scripts["isKeyExists"]
-		if !ok {
-			return fmt.Errorf("initialization error")
-		}
-
-		exists, err := redis.Bool(script.Do(conn, a.prefix+":$$"+index, docKey))
+		exists, err := redis.Bool(conn.Do("HEXISTS", a.prefix+":$"+index, docKey))
 		if err != nil {
 			return err
 		}

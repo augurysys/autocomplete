@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"flag"
 	"reflect"
+	"strconv"
 	"testing"
 	"time"
 
@@ -31,7 +32,11 @@ func init() {
 	redisPassword = *password
 }
 
-func flushall(t *testing.T) {
+type TestStruct interface {
+	Fatal(args ...interface{})
+}
+
+func flushall(t TestStruct) {
 	conn := pool.Get()
 	defer conn.Close()
 
@@ -40,7 +45,7 @@ func flushall(t *testing.T) {
 	}
 }
 
-func setUp(t *testing.T, indexType int) {
+func setUp(t TestStruct, indexType int) {
 	pool = &redis.Pool{
 		MaxIdle:     3,
 		MaxActive:   20,
@@ -72,7 +77,7 @@ func setUp(t *testing.T, indexType int) {
 	autocomplete = New(pool, prefix, indexType)
 }
 
-func tearDown(t *testing.T) {
+func tearDown(t TestStruct) {
 	flushall(t)
 
 	pool.Close()
@@ -244,7 +249,7 @@ func TestIndexAndSearchPrefixesIndexing(t *testing.T) {
 
 func TestIndexAndSearchTermsIndexing(t *testing.T) {
 	setUp(t, TermsIndexing)
-	//	defer tearDown(t)
+	defer tearDown(t)
 
 	d1 := doc{
 		DocID: "123",
@@ -383,5 +388,170 @@ func TestIndexAndSearchTermsIndexing(t *testing.T) {
 
 	if !reflect.DeepEqual(docs[1], d1) {
 		t.Fail()
+	}
+}
+
+func BenchmarkIndexPrefixesIndexing(b *testing.B) {
+	b.StopTimer()
+	setUp(b, PrefixesIndexing)
+	defer tearDown(b)
+
+	for i := 0; i < b.N; i++ {
+		b.StopTimer()
+		s := strconv.Itoa(i)
+
+		d := doc{
+			DocID: s,
+			Name:  s + " " + "test_string" + s,
+		}
+
+		b.StartTimer()
+		if err := autocomplete.Index("test_index", d, 100); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkIndexTermsIndexing(b *testing.B) {
+	b.StopTimer()
+	setUp(b, TermsIndexing)
+	defer tearDown(b)
+
+	for i := 0; i < b.N; i++ {
+		b.StopTimer()
+		s := strconv.Itoa(i)
+		d := doc{
+			DocID: s,
+			Name:  s + " " + "test_string" + s,
+		}
+
+		b.StartTimer()
+		if err := autocomplete.Index("test_index", d, 100); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkSearchPrefixesIndexingLexicographicalSort(b *testing.B) {
+	b.StopTimer()
+	setUp(b, PrefixesIndexing)
+	defer tearDown(b)
+
+	for i := 0; i < 10000; i++ {
+		s := strconv.Itoa(i)
+
+		d := doc{
+			DocID: s,
+			Name:  s + " " + "test_string" + s,
+		}
+
+		if err := autocomplete.Index("test_index", d, 100); err != nil {
+			b.Fatal(err)
+		}
+	}
+
+	for i := 0; i < b.N; i++ {
+		b.StopTimer()
+		s := strconv.Itoa(i)
+
+		b.StartTimer()
+		if _, err := autocomplete.Search("test_index",
+			s+" "+"test_string"+s, SortLexicographical); err != nil {
+
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkSearchPrefixesIndexingScoreSort(b *testing.B) {
+	b.StopTimer()
+	setUp(b, PrefixesIndexing)
+	defer tearDown(b)
+
+	for i := 0; i < 10000; i++ {
+		s := strconv.Itoa(i)
+
+		d := doc{
+			DocID: s,
+			Name:  s + " " + "test_string" + s,
+		}
+
+		if err := autocomplete.Index("test_index", d, 100); err != nil {
+			b.Fatal(err)
+		}
+	}
+
+	for i := 0; i < b.N; i++ {
+		b.StopTimer()
+		s := strconv.Itoa(i)
+
+		b.StartTimer()
+		if _, err := autocomplete.Search("test_index",
+			s+" "+"test_string"+s, SortScore); err != nil {
+
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkSearchTermsIndexingLexicographicalSort(b *testing.B) {
+	b.StopTimer()
+	setUp(b, TermsIndexing)
+	defer tearDown(b)
+
+	for i := 0; i < 10000; i++ {
+		s := strconv.Itoa(i)
+
+		d := doc{
+			DocID: s,
+			Name:  s + " " + "test_string" + s,
+		}
+
+		if err := autocomplete.Index("test_index", d, 100); err != nil {
+			b.Fatal(err)
+		}
+	}
+
+	for i := 0; i < b.N; i++ {
+		b.StopTimer()
+		s := strconv.Itoa(i)
+
+		b.StartTimer()
+		if _, err := autocomplete.Search("test_index",
+			s+" "+"test_string"+s, SortLexicographical); err != nil {
+
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkSearchTermsIndexingScoreSort(b *testing.B) {
+	b.StopTimer()
+	setUp(b, TermsIndexing)
+	defer tearDown(b)
+
+	for i := 0; i < 10000; i++ {
+		s := strconv.Itoa(i)
+
+		d := doc{
+			DocID: s,
+			Name:  s + " " + "test_string" + s,
+		}
+
+		if err := autocomplete.Index("test_index", d, 100); err != nil {
+			b.Fatal(err)
+		}
+	}
+
+	for i := 0; i < b.N; i++ {
+		b.StopTimer()
+		s := strconv.Itoa(i)
+
+		b.StartTimer()
+		if _, err := autocomplete.Search("test_index",
+			s+" "+"test_string"+s, SortScore); err != nil {
+
+			b.Fatal(err)
+		}
 	}
 }
