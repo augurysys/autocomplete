@@ -7,6 +7,7 @@ import (
 	"flag"
 	"reflect"
 	"strconv"
+	"sync"
 	"testing"
 	"time"
 
@@ -48,7 +49,7 @@ func flushall(t TestStruct) {
 func setUp(t TestStruct, indexType int) {
 	pool = &redis.Pool{
 		MaxIdle:     3,
-		MaxActive:   20,
+		MaxActive:   10,
 		IdleTimeout: 240 * time.Second,
 		Wait:        true,
 		Dial: func() (redis.Conn, error) {
@@ -410,6 +411,8 @@ func BenchmarkIndexPrefixesIndexing(b *testing.B) {
 			b.Fatal(err)
 		}
 	}
+
+	b.StopTimer()
 }
 
 func BenchmarkIndexTermsIndexing(b *testing.B) {
@@ -430,6 +433,8 @@ func BenchmarkIndexTermsIndexing(b *testing.B) {
 			b.Fatal(err)
 		}
 	}
+
+	b.StopTimer()
 }
 
 func BenchmarkSearchPrefixesIndexingLexicographicalSort(b *testing.B) {
@@ -437,18 +442,25 @@ func BenchmarkSearchPrefixesIndexingLexicographicalSort(b *testing.B) {
 	setUp(b, PrefixesIndexing)
 	defer tearDown(b)
 
-	for i := 0; i < 10000; i++ {
+	var wg sync.WaitGroup
+	for i := 0; i < 100000; i++ {
+		wg.Add(1)
 		s := strconv.Itoa(i)
 
-		d := doc{
-			DocID: s,
-			Name:  s + " " + "test_string" + s,
-		}
+		go func(s string) {
+			defer wg.Done()
+			d := doc{
+				DocID: s,
+				Name:  s + " " + "test_string" + s,
+			}
 
-		if err := autocomplete.Index("test_index", d, 100); err != nil {
-			b.Fatal(err)
-		}
+			if err := autocomplete.Index("test_index", d, 100); err != nil {
+				b.Fatal(err)
+			}
+		}(s)
 	}
+
+	wg.Wait()
 
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()
@@ -461,6 +473,8 @@ func BenchmarkSearchPrefixesIndexingLexicographicalSort(b *testing.B) {
 			b.Fatal(err)
 		}
 	}
+
+	b.StopTimer()
 }
 
 func BenchmarkSearchPrefixesIndexingScoreSort(b *testing.B) {
@@ -468,18 +482,25 @@ func BenchmarkSearchPrefixesIndexingScoreSort(b *testing.B) {
 	setUp(b, PrefixesIndexing)
 	defer tearDown(b)
 
-	for i := 0; i < 10000; i++ {
+	var wg sync.WaitGroup
+	for i := 0; i < 100000; i++ {
+		wg.Add(1)
 		s := strconv.Itoa(i)
 
-		d := doc{
-			DocID: s,
-			Name:  s + " " + "test_string" + s,
-		}
+		go func(s string) {
+			defer wg.Done()
+			d := doc{
+				DocID: s,
+				Name:  s + " " + "test_string" + s,
+			}
 
-		if err := autocomplete.Index("test_index", d, 100); err != nil {
-			b.Fatal(err)
-		}
+			if err := autocomplete.Index("test_index", d, 100); err != nil {
+				b.Fatal(err)
+			}
+		}(s)
 	}
+
+	wg.Wait()
 
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()
@@ -492,6 +513,8 @@ func BenchmarkSearchPrefixesIndexingScoreSort(b *testing.B) {
 			b.Fatal(err)
 		}
 	}
+
+	b.StopTimer()
 }
 
 func BenchmarkSearchTermsIndexingLexicographicalSort(b *testing.B) {
@@ -499,18 +522,25 @@ func BenchmarkSearchTermsIndexingLexicographicalSort(b *testing.B) {
 	setUp(b, TermsIndexing)
 	defer tearDown(b)
 
-	for i := 0; i < 10000; i++ {
+	var wg sync.WaitGroup
+	for i := 0; i < 100000; i++ {
+		wg.Add(1)
 		s := strconv.Itoa(i)
 
-		d := doc{
-			DocID: s,
-			Name:  s + " " + "test_string" + s,
-		}
+		go func(s string) {
+			defer wg.Done()
+			d := doc{
+				DocID: s,
+				Name:  s + " " + "test_string" + s,
+			}
 
-		if err := autocomplete.Index("test_index", d, 100); err != nil {
-			b.Fatal(err)
-		}
+			if err := autocomplete.Index("test_index", d, 100); err != nil {
+				b.Fatal(err)
+			}
+		}(s)
 	}
+
+	wg.Wait()
 
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()
@@ -523,6 +553,8 @@ func BenchmarkSearchTermsIndexingLexicographicalSort(b *testing.B) {
 			b.Fatal(err)
 		}
 	}
+
+	b.StopTimer()
 }
 
 func BenchmarkSearchTermsIndexingScoreSort(b *testing.B) {
@@ -530,18 +562,25 @@ func BenchmarkSearchTermsIndexingScoreSort(b *testing.B) {
 	setUp(b, TermsIndexing)
 	defer tearDown(b)
 
-	for i := 0; i < 10000; i++ {
+	var wg sync.WaitGroup
+	for i := 0; i < 100000; i++ {
+		wg.Add(1)
 		s := strconv.Itoa(i)
 
-		d := doc{
-			DocID: s,
-			Name:  s + " " + "test_string" + s,
-		}
+		go func(s string) {
+			defer wg.Done()
+			d := doc{
+				DocID: s,
+				Name:  s + " " + "test_string" + s,
+			}
 
-		if err := autocomplete.Index("test_index", d, 100); err != nil {
-			b.Fatal(err)
-		}
+			if err := autocomplete.Index("test_index", d, 100); err != nil {
+				b.Fatal(err)
+			}
+		}(s)
 	}
+
+	wg.Wait()
 
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()
@@ -554,4 +593,6 @@ func BenchmarkSearchTermsIndexingScoreSort(b *testing.B) {
 			b.Fatal(err)
 		}
 	}
+
+	b.StopTimer()
 }
