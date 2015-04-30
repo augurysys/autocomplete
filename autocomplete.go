@@ -11,7 +11,9 @@
 //
 // 	http://engineering.getglue.com/post/36667374830/autocomplete-search-with-redis
 //
-// the implementation is using transactions and LUA scripts for optimizations.
+// the implementation is using transactions and LUA scripts for optimizations,
+// all search operations processing is done is the application level to improve
+// performance and reduce Redis latency.
 package autocomplete
 
 import (
