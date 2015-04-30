@@ -460,7 +460,7 @@ func BenchmarkSearchPrefixesIndexingLexicographicalSort(b *testing.B) {
 
 		b.StartTimer()
 		if _, err := autocomplete.Search("test_index",
-			s+" "+"test_string"+s, SortLexicographical); err != nil {
+			s+" t", SortLexicographical); err != nil {
 
 			b.Fatal(err)
 		}
@@ -493,7 +493,7 @@ func BenchmarkSearchPrefixesIndexingScoreSort(b *testing.B) {
 
 		b.StartTimer()
 		if _, err := autocomplete.Search("test_index",
-			s+" "+"test_string"+s, SortScore); err != nil {
+			s+" t", SortScore); err != nil {
 
 			b.Fatal(err)
 		}
@@ -525,7 +525,7 @@ func BenchmarkSearchTermsIndexingLexicographicalSort(b *testing.B) {
 
 		b.StartTimer()
 		if _, err := autocomplete.Search("test_index",
-			s+" "+"test_string"+s, SortLexicographical); err != nil {
+			s, SortLexicographical); err != nil {
 
 			b.Fatal(err)
 		}
@@ -558,7 +558,7 @@ func BenchmarkSearchTermsIndexingScoreSort(b *testing.B) {
 
 		b.StartTimer()
 		if _, err := autocomplete.Search("test_index",
-			s+" "+"test_string"+s, SortScore); err != nil {
+			s, SortScore); err != nil {
 
 			b.Fatal(err)
 		}
