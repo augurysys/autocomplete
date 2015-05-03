@@ -39,6 +39,17 @@ func (a *Autocomplete) prefixesSearch(index, query string,
 	defer conn.Close()
 
 	terms := strings.Split(strings.ToLower(query), " ")
+
+	// remove empty terms
+	v := []string{}
+	for _, t := range terms {
+		if t != "" {
+			v = append(v, t)
+		}
+	}
+
+	terms = v
+
 	if len(terms) == 0 {
 		return [][]byte{}, nil
 	}
