@@ -9,7 +9,7 @@
 //
 // 	http://patshaughnessy.net/2011/11/29/two-ways-of-using-redis-to-build-a-nosql-autocomplete-search-index
 //
-// 	http://engineering.getglue.com/post/36667374830/autocomplete-search-with-redis
+// 	http://getglue-engineering.tumblr.com/post/36667374830/autocomplete-search-with-redis
 //
 // the implementation is using transactions and LUA scripts for optimizations,
 // all search operations processing is done is the application level to improve
