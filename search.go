@@ -126,6 +126,7 @@ func (a *Autocomplete) prefixesSearch(index, query string,
 	results := [][]byte{}
 	queries := make([][]string, int(len(keys)/1000)+1)
 	queryResults := make(map[int][]interface{})
+	var queryResultsMutex sync.RWMutex
 
 	for i, k := range keys {
 		queries[int(i/1000)] = append(queries[int(i/1000)], k)
@@ -156,7 +157,8 @@ func (a *Autocomplete) prefixesSearch(index, query string,
 				e <- err
 				return
 			}
-
+			queryResultsMutex.Lock()
+			defer queryResultsMutex.Unlock()
 			queryResults[i] = values
 		}(i, keys)
 	}
